@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * @Author: Jonil
  * @Date: 2022/12/5
- * @Description: 当前物料与替代无聊的枚举类
+ * @Description: 当前物料与替代物料的枚举类
  */
 @Getter
 @AllArgsConstructor
