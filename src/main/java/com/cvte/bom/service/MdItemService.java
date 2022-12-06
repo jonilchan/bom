@@ -19,7 +19,7 @@ public interface MdItemService extends IService<MdItem> {
      * @param itemId
      * @return
      */
-    MdItemTreeVO getMdItemTreeById(Integer itemId, String[] invisible, Integer level);
+    MdItemTreeVO getMdItemTreeById(Integer itemId, String[] invisible);
 
     /**
      * 过itemCode获取MdItem的成品路径
@@ -35,5 +35,5 @@ public interface MdItemService extends IService<MdItem> {
      * @param ids
      * @return
      */
-    List<MdItem> getMdItemListByIds(Integer[] ids);
+    List<MdItemTreeVO> getMdItemListByIds(Integer[] ids);
 }

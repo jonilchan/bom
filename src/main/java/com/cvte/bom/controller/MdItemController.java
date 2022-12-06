@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Arrays;
-
 /**
  * @Author: jonil
  * @Date: 2022/12/05
@@ -43,18 +41,16 @@ public class MdItemController {
      * 通过itemId获取MdItem树形数据
      *
      * @param itemId
-     * @param invisible 设置item_class_code是否可见
-     * @param level     设置可视层级
      * @return
      */
     @ResponseBody
     @RequestMapping("getMdItemTreeById")
-    public R getMdItemTreeById(Integer itemId, String[] invisible, Integer level) {
+    public R getMdItemTreeById(Integer itemId, String[] invisible) {
         //参数校验
         if (itemId == null || itemId == 0) {
             throw new ParamsException("请输入有效参数!");
         }
-        return R.success(mdItemService.getMdItemTreeById(itemId, invisible, level));
+        return R.success(mdItemService.getMdItemTreeById(itemId, invisible));
     }
 
     /**

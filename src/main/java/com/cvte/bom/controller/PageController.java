@@ -12,27 +12,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class PageController {
 
     @RequestMapping("/")
-    public String mainPage(){
+    public String mainPage() {
         return "main";
     }
 
     @RequestMapping("/welcome")
-    public String welcomePage(){
+    public String welcomePage() {
         return "welcome";
     }
 
     @RequestMapping("/tree")
-    public String treePage(){
+    public String treePage() {
         return "tree";
     }
 
     @RequestMapping("/trace")
-    public String tracePage(){
+    public String tracePage() {
         return "trace";
     }
 
     @RequestMapping("/mdItemList")
-    public String mdItemListPage(){
+    public String mdItemListPage() {
         return "list";
     }
 }

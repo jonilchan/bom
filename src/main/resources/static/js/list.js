@@ -19,15 +19,11 @@ layui.use(['table', 'layer', "form"], function () {
             {field: 'itemName', title: '物料名称', minWidth: 50, fixed: "right", align: "center"},
             {field: 'itemClassCode', title: '物料分类代码', minWidth: 50, fixed: "right", align: "center"},
             {field: 'itemClassName', title: '物料分类名称', minWidth: 50, fixed: "right", align: "center"},
-            {field: 'itemQuantity', title: '物料数量', minWidth: 50, fixed: "right", align: "center"},
-            {field: 'crtUser', title: '创建者', minWidth: 50, fixed: "right", align: "center"},
-            {field: 'crtTime', title: '创建时间', minWidth: 50, fixed: "right", align: "center"},
-            {field: 'updUser', title: '更新者', minWidth: 50, fixed: "right", align: "center"},
-            {field: 'updTime', title: '更新时间', minWidth: 50, fixed: "right", align: "center"}
+            {field: 'childQuality', title: '物料数量', minWidth: 50, fixed: "right", align: "center"},
         ]],
-        response:{
-            statusName:'code', //规定返回的状态码字段为code
-            statusCode:200 //规定成功的状态码味200
+        response: {
+            statusName: 'code', //规定返回的状态码字段为code
+            statusCode: 200 //规定成功的状态码味200
         },
     });
 

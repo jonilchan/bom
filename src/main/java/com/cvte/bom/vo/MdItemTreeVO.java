@@ -14,7 +14,27 @@ import java.util.List;
 public class MdItemTreeVO extends MdItem {
 
     /**
-     * 子节点List
+     * 父节点id
      */
-    List<MdItemTreeVO> mdItemList;
+    private Integer parentId;
+
+    /**
+     * 子节点id
+     */
+    private Integer childId;
+
+    /**
+     * 子节点数量
+     */
+    private Integer childQuality;
+
+    /**
+     * 物料状态，0-为当前物料，1-为替代物料
+     */
+    private Integer itemCheck;
+
+    /**
+     * 子节点列表
+     */
+    private List<MdItemTreeVO> children;
 }

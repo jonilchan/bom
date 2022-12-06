@@ -5,15 +5,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cvte.bom.entity.MdItem;
 import com.cvte.bom.exception.ParamsException;
 import com.cvte.bom.mapper.MdItemMapper;
+import com.cvte.bom.service.MdItemRelaService;
 import com.cvte.bom.service.MdItemService;
 import com.cvte.bom.vo.MdItemTreeVO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * @Author: jonil
@@ -23,6 +25,8 @@ import java.util.stream.Collectors;
 @Service
 public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> implements MdItemService {
 
+    @Autowired
+    private MdItemRelaService mdItemRelaService;
 
     /**
      * 通过itemId获取MdItem树形数据
@@ -31,7 +35,7 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
      * @return
      */
     @Override
-    public MdItemTreeVO getMdItemTreeById(Integer itemId, String[] invisible, Integer level) {
+    public MdItemTreeVO getMdItemTreeById(Integer itemId, String[] invisible) {
         MdItemTreeVO mdItemTreeVO = new MdItemTreeVO();
         //查询是否存在该节点
         MdItem mdItem = baseMapper.selectById(itemId);
@@ -39,40 +43,57 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
             throw new ParamsException("不存在该参数节点");
         }
         BeanUtils.copyProperties(mdItem, mdItemTreeVO);
-        return getChildrenById(mdItemTreeVO, invisible, level);
+        MdItemTreeVO res = getChildrenById(mdItemTreeVO);
+        if (invisible != null && invisible.length > 0) {
+            getMdItemTreeByIdHelper(res, invisible);
+        }
+        return res;
     }
 
     /**
-     * 递归获取子节点，拼装成树形数据
+     * 递归获取子节点，拼装成树形数据，返回父节点
      *
      * @param mdItemTreeVO
      * @return
      */
-    public MdItemTreeVO getChildrenById(MdItemTreeVO mdItemTreeVO, String[] invisible, Integer level) {
-        QueryWrapper<MdItem> queryWrapper = new QueryWrapper<MdItem>().eq("item_parent_id", mdItemTreeVO.getItemId());
-        List<MdItem> list = baseMapper.selectList(queryWrapper);
+    public MdItemTreeVO getChildrenById(MdItemTreeVO mdItemTreeVO) {
+        List<MdItemTreeVO> children = mdItemRelaService.selectByPid(mdItemTreeVO.getItemId());
+        mdItemTreeVO.setChildren(children);
         //节点不为空则进行查询子树
-        if (list != null) {
-            List<MdItemTreeVO> collect = list.stream()
-                    //过滤存在不可见元素和高于可视层级元素
-                    .filter(item -> Arrays.stream(invisible).noneMatch(macheElement -> macheElement.equals(item.getItemClassCode())) &&
-                            level > 0 && item.getItemLevel() <= level).map(item -> {
-                        MdItemTreeVO itemTreeVO = new MdItemTreeVO();
-                        BeanUtils.copyProperties(item, itemTreeVO);
-                        //下一层递归查询
-                        return getChildrenById(itemTreeVO, invisible, level);
-                        //收集元素
-                    }).collect(Collectors.toList());
-            mdItemTreeVO.setMdItemList(collect);
+        for (MdItemTreeVO child : children) {
+            MdItem mdItem = baseMapper.selectById(child.getChildId());
+            BeanUtils.copyProperties(mdItem, child);
+            getChildrenById(child);
         }
         return mdItemTreeVO;
+    }
+
+    /**
+     * 过滤某些不可见元素
+     *
+     * @param node
+     */
+    public void getMdItemTreeByIdHelper(MdItemTreeVO node, String[] invisible) {
+
+        node.getChildren().removeIf(item -> {
+            for (String s : invisible) {
+                if (item.getItemClassCode().equals(s)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        //递归去除
+        for (MdItemTreeVO child : node.getChildren()) {
+            getMdItemTreeByIdHelper(child, invisible);
+        }
     }
 
     /**
      * 通过itemCode获取MdItem的成品路径
      *
      * @param strings
-     * @return 例：004.003 --> 002.01 --> 001.01
+     * @return 例：004.03 --> 002.01 --> 001.01
      */
     @Override
     public String getMdItemTraceById(String[] strings) {
@@ -82,23 +103,42 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         if (item == null) {
             throw new ParamsException();
         }
-
-        StringBuilder res = new StringBuilder();
-        res.append(strings[0]);
-        res.append('.');
-        res.append(strings[1]);
-        while (true) {
-            MdItem mdItem = baseMapper.selectById(item.getItemParentId());
-            if (mdItem == null) {
-                break;
+        MdItemTreeVO mdItemTreeVO = new MdItemTreeVO();
+        List<List<Integer>> res = new ArrayList<>();
+        traceHelper(res, new ArrayList<>(), item.getItemId());
+        List<String> all = new ArrayList<>();
+        for (List<Integer> nums : res) {
+            StringBuilder sb = new StringBuilder();
+            for (Integer num : nums) {
+                if (num == null || num == 0) {
+                    continue;
+                }
+                MdItem info = baseMapper.selectById(num);
+                sb.append(info.getItemClassCode()).append('.').append(info.getItemCode()).append(" --> ");
             }
-            res.append(" --> ");
-            res.append(mdItem.getItemClassCode());
-            res.append('.');
-            res.append(mdItem.getItemCode());
-            item = mdItem;
+            sb.delete(sb.length() - 5, sb.length());
+            all.add(sb.toString());
         }
-        return res.toString();
+        return all.toString();
+    }
+
+    /**
+     * 回溯助手函数
+     *
+     * @param res
+     * @param temp
+     * @param id
+     */
+    private void traceHelper(List<List<Integer>> res, List<Integer> temp, Integer id) {
+        temp.add(id);
+        List<MdItemTreeVO> parents = mdItemRelaService.selectByCid(id);
+        if (parents == null || parents.size() == 0) {
+            res.add(new ArrayList<>(temp));
+            return;
+        }
+        for (MdItemTreeVO parent : parents) {
+            traceHelper(res, new ArrayList<>(temp), parent.getParentId());
+        }
     }
 
     /**
@@ -108,30 +148,36 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
      * @return
      */
     @Override
-    public List<MdItem> getMdItemListByIds(Integer[] ids) {
-        QueryWrapper<MdItem> queryWrapper = new QueryWrapper<MdItem>().in("item_id", Arrays.asList(ids));
-        List<MdItem> mdItems = baseMapper.selectList(queryWrapper);
-        List<MdItem> purchaseList = new ArrayList<>();
-        getMdItemList(purchaseList, mdItems);
-        return purchaseList;
+    public List<MdItemTreeVO> getMdItemListByIds(Integer[] ids) {
+
+        Map<Integer, Integer> idsAndQuality = new HashMap<>();
+        List<MdItemTreeVO> nodes = mdItemRelaService.selectByCidsAndCheck(ids);
+        for (MdItemTreeVO node : nodes) {
+            getMdItemList(idsAndQuality, node);
+        }
+        List<MdItemTreeVO> res = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : idsAndQuality.entrySet()) {
+            MdItemTreeVO mdItemTreeVO = new MdItemTreeVO();
+            MdItem mdItem = baseMapper.selectById(entry.getKey());
+            BeanUtils.copyProperties(mdItem, mdItemTreeVO);
+            mdItemTreeVO.setChildQuality(entry.getValue());
+            res.add(mdItemTreeVO);
+        }
+        res.removeIf(item -> !"004".equals(item.getItemClassCode()));
+        return res;
     }
 
     /**
      * 递归获取孩子节点，并加入采购清单
      *
-     * @param purchaseList
-     * @param children
+     * @param idsAndQuality
+     * @param node
      */
-    public void getMdItemList(List<MdItem> purchaseList, List<MdItem> children) {
-        for (MdItem child : children) {
-            if (child == null) {
-                continue;
-            }
-            if (child.getItemClassCode().equals("004")) {
-                purchaseList.add(child);
-                continue;
-            }
-            getMdItemList(purchaseList, getMdItemListByParentId(child.getItemId()));
+    public void getMdItemList(Map<Integer, Integer> idsAndQuality, MdItemTreeVO node) {
+        idsAndQuality.put(node.getChildId(), idsAndQuality.getOrDefault(node.getChildId(), 0) + node.getChildQuality());
+        List<MdItemTreeVO> info = mdItemRelaService.selectByPidAndCheck(node.getChildId());
+        for (MdItemTreeVO mdItemTreeVO : info) {
+            getMdItemList(idsAndQuality, mdItemTreeVO);
         }
     }
 

@@ -12,9 +12,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @Author: jonil
- * @Date: 2022/12/05
- * @Description: 实体类
+ * <p>
+ *
+ * </p>
+ *
+ * @author jonil
+ * @since 2022-12-06
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -48,26 +51,6 @@ public class MdItem implements Serializable {
      * 物料分类名称
      */
     private String itemClassName;
-
-    /**
-     * 物料父节点id
-     */
-    private Integer itemParentId;
-
-    /**
-     * 物料数量
-     */
-    private Integer itemQuantity;
-
-    /**
-     * 物料状态，0-为当前物料，1-为替代物料
-     */
-    private Integer itemCheck;
-
-    /**
-     * 物料所在层级，从1开始
-     */
-    private Integer itemLevel;
 
     /**
      * 创建者

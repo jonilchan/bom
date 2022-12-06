@@ -17,7 +17,8 @@ layui.use(['form', 'jquery', 'layer'], function () {
             layer.msg(data.data,{
                 icon: 1,
                 time: 4000, //2秒关闭（如果不配置，默认是3秒）
-                shade : [0.6 , '#000' , true],
+                shade: [0.4, '#000', true],
+                maxWidth: 500
             })
         }
     })
