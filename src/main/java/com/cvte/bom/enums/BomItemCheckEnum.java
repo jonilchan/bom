@@ -12,10 +12,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BomItemCheckEnum {
 
-    //当前物料
-    currentItem(0),
     //替代物料
-    alternativeItem(1);
+    alternativeItem(0),
+    //当前物料
+    currentItem(1),
+    //旧版本物料
+    oldVersionItem(2);
     //状态码
     Integer code;
 

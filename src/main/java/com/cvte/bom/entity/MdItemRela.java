@@ -45,7 +45,7 @@ public class MdItemRela implements Serializable {
     private Integer childQuality;
 
     /**
-     * 物料状态，0-为当前物料，1-为替代物料
+     * 物料状态，1-为当前物料，0-为替代物料， 2-为旧版本物料
      */
     private Integer itemCheck;
 

@@ -1,10 +1,17 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>BOM模块</title>
-    <#include "common.ftl">
-</head>
+    <link rel="stylesheet" href="lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="css/layuimini.css" media="all">
+    <link rel="stylesheet" href="lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="css/formSelects-v4.css" media="all">
+    <link rel="stylesheet" href="css/public.css" media="all">
+    <link rel="stylesheet" href="css/iconfont.css">
+    <script src="lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+    <script src="js/lay-config.js" charset="utf-8"></script></head>
 <body class="layui-layout-body layuimini-all">
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header header">
@@ -28,34 +35,34 @@
 
     <div class="layui-side layui-bg-black">
         <div class="layui-side-scroll layui-left-menu">
-                <ul class="layui-nav layui-nav-tree layui-left-nav-tree layui-this" id="currency">
+            <ul class="layui-nav layui-nav-tree layui-left-nav-tree layui-this" id="currency">
 
-                    <li class="layui-nav-item">
-                        <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
-                           data-tab="notTree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
-                                    class="layui-left-nav">物料清单</span></a>
-                    </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
+                       data-tab="notTree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
+                                class="layui-left-nav">物料清单</span></a>
+                </li>
 
-                    <li class="layui-nav-item">
-                        <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
-                           data-tab="tree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
-                                    class="layui-left-nav">物料清单（树状）</span></a>
-                    </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
+                       data-tab="tree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
+                                class="layui-left-nav">物料清单（树状）</span></a>
+                </li>
 
-                    <li class="layui-nav-item">
-                        <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
-                           data-tab="trace" target="_self"><i class="iconfont icon-quanwenjieyue">&nbsp;</i><span
-                                    class="layui-left-nav">物料追溯接口</span></a>
-                    </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
+                       data-tab="trace" target="_self"><i class="iconfont icon-quanwenjieyue">&nbsp;</i><span
+                                class="layui-left-nav">物料追溯接口</span></a>
+                </li>
 
-                    <li class="layui-nav-item">
-                        <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
-                           data-tab="mdItemList" target="_self"><i class="iconfont icon-paixingbang">&nbsp;</i><span
-                                    class="layui-left-nav">批量物料清单</span></a>
-                    </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
+                       data-tab="mdItemList" target="_self"><i class="iconfont icon-paixingbang">&nbsp;</i><span
+                                class="layui-left-nav">批量物料清单</span></a>
+                </li>
 
-                    <span class="layui-nav-bar" style="top: 201px; height: 0px; opacity: 0;"></span>
-                </ul>
+                <span class="layui-nav-bar" style="top: 201px; height: 0px; opacity: 0;"></span>
+            </ul>
         </div>
     </div>
 

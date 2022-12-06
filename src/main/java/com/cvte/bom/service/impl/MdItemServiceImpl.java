@@ -3,6 +3,7 @@ package com.cvte.bom.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cvte.bom.entity.MdItem;
+import com.cvte.bom.enums.BomItemCheckEnum;
 import com.cvte.bom.exception.ParamsException;
 import com.cvte.bom.mapper.MdItemMapper;
 import com.cvte.bom.service.MdItemRelaService;
@@ -101,6 +102,11 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         }
     }
 
+    /**
+     * 目录树层级打印助手
+     * @param level
+     * @return
+     */
     private String levelSign(int level) {
         StringBuilder sb = new StringBuilder();
         sb.append(" ├─");
@@ -110,8 +116,21 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         return sb.toString();
     }
 
+    /**
+     * 生成目录树助手，显示新旧版本和替代物品
+     * @param node
+     * @param temp
+     * @param level
+     */
     private void genTreeHelper(MdItemTreeVO node, StringBuilder temp, int level){
-        temp.append(levelSign(level)).append("料号：").append(node.getItemClassCode()).append('.').append(node.getItemCode()).append(";名称：").append(node.getItemName()).append("\n");
+        temp.append(levelSign(level)).append("料号：").append(node.getItemClassCode()).append('.').append(node.getItemCode()).append(";名称：").append(node.getItemName());
+        if (Objects.equals(node.getItemCheck(), BomItemCheckEnum.alternativeItem.getCode())){
+            temp.append("（替代物料）");
+        }
+        if (Objects.equals(node.getItemCheck(), BomItemCheckEnum.oldVersionItem.getCode())){
+            temp.append("（旧版本物料）");
+        }
+        temp.append("\n");
     }
 
     /**
