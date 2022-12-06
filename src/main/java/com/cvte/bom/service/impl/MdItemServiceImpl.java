@@ -12,10 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: jonil
@@ -89,8 +86,36 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         }
     }
 
+    public void genTree(MdItemTreeVO node, StringBuilder temp, int level){
+        level++;
+        if (node == null){
+            return;
+        }
+        for (MdItemTreeVO child : node.getChildren()) {
+            if (child.getChildren() != null){
+                genTreeHelper(child, temp, level);
+                genTree(child, temp, level);
+            }else{
+                genTreeHelper(child, temp, level);
+            }
+        }
+    }
+
+    private String levelSign(int level) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ├─");
+        for (int x = 0; x < level; x++) {
+            sb.insert(0, " │   ");
+        }
+        return sb.toString();
+    }
+
+    private void genTreeHelper(MdItemTreeVO node, StringBuilder temp, int level){
+        temp.append(levelSign(level)).append("料号：").append(node.getItemClassCode()).append('.').append(node.getItemCode()).append(";名称：").append(node.getItemName()).append("\n");
+    }
+
     /**
-     * 通过itemCode获取MdItem的成品路径
+     * 通过itemCode获取MdItem的成品路径，包含自身节点
      *
      * @param strings
      * @return 例：004.03 --> 002.01 --> 001.01
@@ -103,9 +128,8 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         if (item == null) {
             throw new ParamsException();
         }
-        MdItemTreeVO mdItemTreeVO = new MdItemTreeVO();
         List<List<Integer>> res = new ArrayList<>();
-        traceHelper(res, new ArrayList<>(), item.getItemId());
+        traceHelper(res, new HashSet<>(), new ArrayList<>(), item.getItemId());
         List<String> all = new ArrayList<>();
         for (List<Integer> nums : res) {
             StringBuilder sb = new StringBuilder();
@@ -123,21 +147,29 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
     }
 
     /**
-     * 回溯助手函数
-     *
+     * 回溯助手函数，回溯的时候注意去重
      * @param res
+     * @param set
      * @param temp
      * @param id
      */
-    private void traceHelper(List<List<Integer>> res, List<Integer> temp, Integer id) {
-        temp.add(id);
+    private void traceHelper(List<List<Integer>> res, HashSet<String> set, List<Integer> temp, Integer id) {
+        if (id != null){
+            temp.add(id);
+        }
         List<MdItemTreeVO> parents = mdItemRelaService.selectByCid(id);
         if (parents == null || parents.size() == 0) {
+            for (String s : set) {
+                if (s.contains(temp.toString().substring(1, temp.toString().length() - 1))){
+                    return;
+                }
+            }
             res.add(new ArrayList<>(temp));
+            set.add(temp.toString().substring(1, temp.toString().length() - 1));
             return;
         }
         for (MdItemTreeVO parent : parents) {
-            traceHelper(res, new ArrayList<>(temp), parent.getParentId());
+            traceHelper(res, set, new ArrayList<>(temp), parent.getParentId());
         }
     }
 

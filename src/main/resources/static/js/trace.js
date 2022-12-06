@@ -1,25 +1,31 @@
-layui.use(['form', 'jquery', 'layer'], function () {
+layui.use(['form', 'jquery', 'layer', 'code'], function(){
 
     var form = layui.form,
         layer = layui.layer,
         $ = layui.jquery;
+
+    layui.code();
 
     form.on('submit(searchBtn)', function (data) {
     data = data.field;
     //加载
     index = layer.load(1);
     $.ajax({
-        type:"get",
-        url:"mdItem/getMdItemTraceByCode?code=" + data.code,
+        type:"post",
+        url:"mdItem/getMdItemTraceByCode",
+        data:{
+            code:data.code,
+        },
         dataType:"json",
-        success:function (data) {
+        success:function (res) {
             layer.close(index);
-            layer.msg(data.data,{
-                icon: 1,
-                time: 4000, //2秒关闭（如果不配置，默认是3秒）
-                shade: [0.4, '#000', true],
-                maxWidth: 500
-            })
+            let strs = res.data.substring(1, res.data.length - 1).split(",");
+            let str = " ";
+            for (let i = 0; i < strs.length; i++) {
+                str += strs[i];
+                str += "\n";
+            }
+            $(".layui-code").text("\n" + str + "\n");
         }
     })
 });

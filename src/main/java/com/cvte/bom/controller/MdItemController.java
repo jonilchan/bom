@@ -1,8 +1,10 @@
 package com.cvte.bom.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.cvte.bom.exception.ParamsException;
 import com.cvte.bom.service.MdItemService;
 import com.cvte.bom.utils.R;
+import com.cvte.bom.vo.MdItemTreeVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,14 +52,36 @@ public class MdItemController {
         if (itemId == null || itemId == 0) {
             throw new ParamsException("请输入有效参数!");
         }
-        return R.success(mdItemService.getMdItemTreeById(itemId, invisible));
+        //直接转换成json字符串,方便前端展示
+        return R.success(JSON.toJSON(mdItemService.getMdItemTreeById(itemId, invisible)).toString());
+    }
+
+    /**
+     * 通过itemId获取MdItem树形数据（String目录树形式）
+     *
+     * @param itemId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("getMdItemTreeStringById")
+    public R getMdItemTreeStringById(Integer itemId, String[] invisible) {
+        //参数校验
+        if (itemId == null || itemId == 0) {
+            throw new ParamsException("请输入有效参数!");
+        }
+        //获取树形结构
+        MdItemTreeVO tree = mdItemService.getMdItemTreeById(itemId, invisible);
+        StringBuilder stringBuilder = new StringBuilder();
+        //生成目录树
+        mdItemService.genTree(tree, stringBuilder, -1);
+        return R.success(stringBuilder.toString());
     }
 
     /**
      * 通过itemCode获取MdItem的成品路径
      *
      * @param code
-     * @return 例：004.003 --> 002.01 --> 001.01
+     * @return 例：004.03 --> 002.01 --> 001.01
      */
     @ResponseBody
     @RequestMapping("getMdItemTraceByCode")

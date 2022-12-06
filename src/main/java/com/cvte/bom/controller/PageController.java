@@ -26,6 +26,11 @@ public class PageController {
         return "tree";
     }
 
+    @RequestMapping("/notTree")
+    public String notTreePage() {
+        return "notTree";
+    }
+
     @RequestMapping("/trace")
     public String tracePage() {
         return "trace";

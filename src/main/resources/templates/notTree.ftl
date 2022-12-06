@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>物料追溯接口</title>
+    <title>物料清单（非树状）</title>
     <#include "./common.ftl">
 </head>
 <body class="childrenBody">
@@ -12,7 +12,9 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label required">物料ID</label>
                     <div class="layui-input-inline">
-                        <input type="text" name="code" lay-verify="required" lay-reqtext="参数不能为空" placeholder='物料ID' } class="layui-input"></div>
+                        <input type="text" name="itemId" lay-verify="required" lay-reqtext="参数不能为空" placeholder='物料ID' } class="layui-input"></div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="invisible" placeholder='不可视编号,分割' } class="layui-input"></div>
                     <div class="layui-input-inline">
                         <button type="button" class="layui-btn" lay-submit lay-filter="searchBtn"><i class="layui-icon">&#xe615;</i>查询</button>
                     </div>
@@ -20,9 +22,10 @@
             </div>
         </form>
     </blockquote>
+    <pre class="layui-code"></pre>
 </form>
-<pre class="layui-code"></pre>
-<script type="text/javascript" src="js/trace.js"></script>
+
+<script type="text/javascript" src="js/notTree.js"></script>
 
 </body>
 </html>

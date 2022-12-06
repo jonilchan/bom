@@ -32,6 +32,12 @@
 
                     <li class="layui-nav-item">
                         <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
+                           data-tab="notTree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
+                                    class="layui-left-nav">物料清单</span></a>
+                    </li>
+
+                    <li class="layui-nav-item">
+                        <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
                            data-tab="tree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
                                     class="layui-left-nav">物料清单（树状）</span></a>
                     </li>
