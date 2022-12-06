@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,25 +39,25 @@
                 <li class="layui-nav-item">
                     <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
                        data-tab="notTree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
-                                class="layui-left-nav">物料清单</span></a>
+                                class="layui-left-nav">物料清单(Json)</span></a>
                 </li>
 
                 <li class="layui-nav-item">
                     <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
                        data-tab="tree" target="_self"><i class="iconfont icon-sousuo">&nbsp;</i><span
-                                class="layui-left-nav">物料清单（树状）</span></a>
+                                class="layui-left-nav">物料清单(树状)</span></a>
                 </li>
 
                 <li class="layui-nav-item">
                     <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
                        data-tab="trace" target="_self"><i class="iconfont icon-quanwenjieyue">&nbsp;</i><span
-                                class="layui-left-nav">物料追溯接口</span></a>
+                                class="layui-left-nav">物料追溯路径</span></a>
                 </li>
 
                 <li class="layui-nav-item">
                     <a href="javascript:" class="layui-menu-tips" data-type="tabAdd" data-tab-mpi="m-p-i-11"
                        data-tab="mdItemList" target="_self"><i class="iconfont icon-paixingbang">&nbsp;</i><span
-                                class="layui-left-nav">批量物料清单</span></a>
+                                class="layui-left-nav">计算物料清单</span></a>
                 </li>
 
                 <span class="layui-nav-bar" style="top: 201px; height: 0px; opacity: 0;"></span>
