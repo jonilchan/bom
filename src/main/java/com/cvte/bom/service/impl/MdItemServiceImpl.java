@@ -240,6 +240,10 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
      */
     private void getMdItemList(Map<Integer, Integer> idsAndQuality, MdItemTreeVO node) {
         idsAndQuality.put(node.getChildId(), idsAndQuality.getOrDefault(node.getChildId(), 0) + node.getChildQuality());
+        //物料数量相乘
+        for (int i = 1; i < node.getChildQuality(); i++) {
+            getMdItemList(idsAndQuality, node);
+        }
         List<MdItemTreeVO> info = mdItemRelaService.selectByPidAndCheck(node.getChildId());
         for (MdItemTreeVO mdItemTreeVO : info) {
             getMdItemList(idsAndQuality, mdItemTreeVO);
