@@ -71,6 +71,7 @@ public class MdItemController {
         }
         //获取树形结构
         MdItemTreeVO tree = mdItemService.getMdItemTreeById(itemId, invisible);
+        //树的字符拼接builder
         StringBuilder stringBuilder = new StringBuilder();
         //生成目录树
         mdItemService.genTree(tree, stringBuilder, -1);

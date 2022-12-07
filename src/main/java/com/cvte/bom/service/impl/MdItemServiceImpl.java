@@ -30,6 +30,7 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
      * 通过itemId获取MdItem树形数据
      *
      * @param itemId
+     * @param invisible 设置是否可见的数组
      * @return
      */
     @Override
@@ -42,6 +43,7 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         }
         BeanUtils.copyProperties(mdItem, mdItemTreeVO);
         MdItemTreeVO res = getChildrenById(mdItemTreeVO);
+        //符合条件就使用助手函数遍历查询
         if (invisible != null && invisible.length > 0) {
             getMdItemTreeByIdHelper(res, invisible);
         }
@@ -54,7 +56,7 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
      * @param mdItemTreeVO
      * @return
      */
-    public MdItemTreeVO getChildrenById(MdItemTreeVO mdItemTreeVO) {
+    private MdItemTreeVO getChildrenById(MdItemTreeVO mdItemTreeVO) {
         List<MdItemTreeVO> children = mdItemRelaService.selectByPid(mdItemTreeVO.getItemId());
         mdItemTreeVO.setChildren(children);
         //节点不为空则进行查询子树
@@ -69,9 +71,10 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
     /**
      * 过滤某些不可见元素
      *
-     * @param node
+     * @param node MdItemTreeVO节点
+     * @param invisible 设置是否可见的数组
      */
-    public void getMdItemTreeByIdHelper(MdItemTreeVO node, String[] invisible) {
+    private void getMdItemTreeByIdHelper(MdItemTreeVO node, String[] invisible) {
 
         node.getChildren().removeIf(item -> {
             for (String s : invisible) {
@@ -87,24 +90,31 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
         }
     }
 
-    public void genTree(MdItemTreeVO node, StringBuilder temp, int level){
+    /**
+     * 生成树的函数
+     * @param node MdItemTreeVO节点
+     * @param treeString 树StringBuilder
+     * @param level 层级，目录树打印的层级，由于每次自增，所以从-1开始
+     */
+    @Override
+    public void genTree(MdItemTreeVO node, StringBuilder treeString, int level){
         level++;
         if (node == null){
             return;
         }
         for (MdItemTreeVO child : node.getChildren()) {
             if (child.getChildren() != null){
-                genTreeHelper(child, temp, level);
-                genTree(child, temp, level);
+                genTreeHelper(child, treeString, level);
+                genTree(child, treeString, level);
             }else{
-                genTreeHelper(child, temp, level);
+                genTreeHelper(child, treeString, level);
             }
         }
     }
 
     /**
      * 目录树层级打印助手
-     * @param level
+     * @param level 层级，目录树打印的层级
      * @return
      */
     private String levelSign(int level) {
@@ -119,37 +129,39 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
     /**
      * 生成目录树助手，显示新旧版本和替代物品
      * @param node
-     * @param temp
+     * @param treeString 树StringBuilder
      * @param level
      */
-    private void genTreeHelper(MdItemTreeVO node, StringBuilder temp, int level){
-        temp.append(levelSign(level)).append("料号：").append(node.getItemClassCode()).append('.').append(node.getItemCode()).append(";名称：").append(node.getItemName());
+    private void genTreeHelper(MdItemTreeVO node, StringBuilder treeString, int level){
+        treeString.append(levelSign(level)).append("料号：").append(node.getItemClassCode()).append('.').append(node.getItemCode()).append(";名称：").append(node.getItemName());
         if (Objects.equals(node.getItemCheck(), BomItemCheckEnum.alternativeItem.getCode())){
-            temp.append("（替代物料）");
+            treeString.append("（替代物料）");
         }
         if (Objects.equals(node.getItemCheck(), BomItemCheckEnum.oldVersionItem.getCode())){
-            temp.append("（旧版本物料）");
+            treeString.append("（旧版本物料）");
         }
-        temp.append("\n");
+        treeString.append("\n");
     }
 
     /**
      * 通过itemCode获取MdItem的成品路径，包含自身节点
      *
-     * @param strings
+     * @param strings string是长度为2的数组，下标0是itemClassCode，下标1是itemCode，控制层已做参数校验
      * @return 例：004.03 --> 002.01 --> 001.01
      */
     @Override
     public String getMdItemTraceById(String[] strings) {
-
+        //查询并校验是否存在改节点
         QueryWrapper<MdItem> queryWrapper = new QueryWrapper<MdItem>().eq("item_class_code", strings[0]).eq("item_code", strings[1]);
         MdItem item = baseMapper.selectOne(queryWrapper);
         if (item == null) {
             throw new ParamsException();
         }
+        //回溯准备
         List<List<Integer>> res = new ArrayList<>();
         traceHelper(res, new HashSet<>(), new ArrayList<>(), item.getItemId());
-        List<String> all = new ArrayList<>();
+        List<String> allTrace = new ArrayList<>();
+        //递归得出结果集
         for (List<Integer> nums : res) {
             StringBuilder sb = new StringBuilder();
             for (Integer num : nums) {
@@ -160,19 +172,19 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
                 sb.append(info.getItemClassCode()).append('.').append(info.getItemCode()).append(" --> ");
             }
             sb.delete(sb.length() - 5, sb.length());
-            all.add(sb.toString());
+            allTrace.add(sb.toString());
         }
-        return all.toString();
+        return allTrace.toString();
     }
 
     /**
      * 回溯助手函数，回溯的时候注意去重
-     * @param res
-     * @param set
-     * @param temp
-     * @param id
+     * @param traceRes 回溯结果集，每一条List<Integer>包含一条路径
+     * @param set 去重的set，调用时直接new即可
+     * @param temp 回溯的临时列表，调用时直接new即可
+     * @param id 当前回溯的id
      */
-    private void traceHelper(List<List<Integer>> res, HashSet<String> set, List<Integer> temp, Integer id) {
+    private void traceHelper(List<List<Integer>> traceRes, HashSet<String> set, List<Integer> temp, Integer id) {
         if (id != null){
             temp.add(id);
         }
@@ -183,23 +195,24 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
                     return;
                 }
             }
-            res.add(new ArrayList<>(temp));
+            traceRes.add(new ArrayList<>(temp));
             set.add(temp.toString().substring(1, temp.toString().length() - 1));
             return;
         }
         for (MdItemTreeVO parent : parents) {
-            traceHelper(res, set, new ArrayList<>(temp), parent.getParentId());
+            traceHelper(traceRes, set, new ArrayList<>(temp), parent.getParentId());
         }
     }
 
     /**
      * 通过多个id获取采购清单
      *
-     * @param ids
+     * @param ids 多个id组成的Integer数组
      * @return
      */
     @Override
     public List<MdItemTreeVO> getMdItemListByIds(Integer[] ids) {
+
 
         Map<Integer, Integer> idsAndQuality = new HashMap<>();
         List<MdItemTreeVO> nodes = mdItemRelaService.selectByCidsAndCheck(ids);
@@ -214,32 +227,22 @@ public class MdItemServiceImpl extends ServiceImpl<MdItemMapper, MdItem> impleme
             mdItemTreeVO.setChildQuality(entry.getValue());
             res.add(mdItemTreeVO);
         }
+        //筛选，去除非004编号的物料
         res.removeIf(item -> !"004".equals(item.getItemClassCode()));
         return res;
     }
 
     /**
-     * 递归获取孩子节点，并加入采购清单
+     * 递归获取孩子节点，并加入采购清单，（递归函数）
      *
-     * @param idsAndQuality
-     * @param node
+     * @param idsAndQuality kv结构的map，k->id，v->数量
+     * @param node MdItemTreeVO 节点
      */
-    public void getMdItemList(Map<Integer, Integer> idsAndQuality, MdItemTreeVO node) {
+    private void getMdItemList(Map<Integer, Integer> idsAndQuality, MdItemTreeVO node) {
         idsAndQuality.put(node.getChildId(), idsAndQuality.getOrDefault(node.getChildId(), 0) + node.getChildQuality());
         List<MdItemTreeVO> info = mdItemRelaService.selectByPidAndCheck(node.getChildId());
         for (MdItemTreeVO mdItemTreeVO : info) {
             getMdItemList(idsAndQuality, mdItemTreeVO);
         }
-    }
-
-    /**
-     * 通过父节点id查询子节点列表
-     *
-     * @param parentId
-     * @return
-     */
-    public List<MdItem> getMdItemListByParentId(Integer parentId) {
-        QueryWrapper<MdItem> queryWrapper = new QueryWrapper<MdItem>().eq("item_parent_id", parentId);
-        return baseMapper.selectList(queryWrapper);
     }
 }

@@ -21,7 +21,7 @@ public interface MdItemService extends IService<MdItem> {
      */
     MdItemTreeVO getMdItemTreeById(Integer itemId, String[] invisible);
 
-    public void genTree(MdItemTreeVO node, StringBuilder temp, int level);
+    void genTree(MdItemTreeVO node, StringBuilder temp, int level);
 
     /**
      * 过itemCode获取MdItem的成品路径
